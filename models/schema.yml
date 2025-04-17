@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: dim_listing_cleansed
+    description: Cleansed table which contains Airbnb listings.
+    columns:
+      - name: listing_id
+        description: Id for listings.
+        tests:
+          - unique
+          - not_null
+
+      - name: host_id
+        description: The hosts's id. References the host table.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_hosts_cleansed')
+              field: host_id
+
+      - name: room_type
+        description: Type of the apartment / room
+        tests:
+        - accepted_values:
+            values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
+      
+      - name: minimum_nights
+        description: '{{ doc("dim_listing_cleansed__minimum_nights") }}'
+        tests:
+          - positive_value
+  - name: dim_hosts_cleansed
+    description: "Cleansed dimension table containing information about Airbnb hosts."
+    columns:
+      - name: host_id
+        description: "Unique identifier for each host."
+        tests:
+          - not_null
+          - unique
+      - name: host_name
+        description: "Name of the host."
+        tests:
+          - not_null
+      - name: is_superhost
+        description: "Flag indicating whether the host is a superhost. Accepts 't' or 'f'."
+        tests:
+          - accepted_values:
+              values: ['t', 'f']
+
+  - name: fct_reviews
+    description: "Fact table capturing reviews and sentiments for Airbnb listings."
+    columns:
+      - name: listing_id
+        description: "Foreign key referencing the unique listing identifier in the dim_listing_cleansed table."
+        tests:
+          - relationships:
+              to: ref('dim_listing_cleansed')
+              field: listing_id
+      - name: reviewer_name
+        description: "Name of the person who left the review."
+        tests:
+          - not_null
+      - name: review_sentiment
+        description: "Categorized sentiment of the review text. Accepts 'positive', 'neutral', or 'negative'."
+        tests:
+          - accepted_values:
+              values: ['positive', 'neutral', 'negative']
+
+

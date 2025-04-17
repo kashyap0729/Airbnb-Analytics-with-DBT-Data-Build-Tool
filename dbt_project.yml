@@ -17,6 +17,7 @@ test-paths: ["tests"]
 seed-paths: ["seeds"]
 macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
+asset-paths : ["assets"]
 
 target-path: "target"
 clean-targets:         # directories to be removed by `dbt clean`
@@ -26,13 +27,15 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
-
+# https://f3d017ac.us1a.app.preset.io/superset/dashboard/8/?native_filters_key=dNcwJ8Qh7eV8E9p7GYwnc5h92_hDqmY4vAQDCVBoiKgeljHTba5e6Sage9jlcB0l
 # In this example config, we tell dbt to build all models in the example/
 # directory as views. These settings can be overridden in the individual model
 # files using the `{{ config(...) }}` macro.
 models:
   dbtlearn:
     +materialized: view
+    +post-hook:
+      - "GRANT SELECT ON {{ this }} TO ROLE REPORTER"
     dim:
      +materialized: table
     src:

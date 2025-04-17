@@ -1,0 +1,18 @@
+version: 2
+
+exposures:
+  - name: executive_dashboard
+    label: Executive Dashboard
+    type: dashboard
+    maturity: low
+    url: https://f3d017ac.us1a.app.preset.io/superset/dashboard/8/?native_filters_key=dNcwJ8Qh7eV8E9p7GYwnc5h92_hDqmY4vAQDCVBoiKgeljHTba5e6Sage9jlcB0l
+    description: Executive Dashboard about Airbnb listings and hosts
+      
+
+    depends_on:
+      - ref('dim_listings_w_hosts')
+      - ref('mart_fullmoon_reviews')
+
+    owner:
+      name: Kashyap Mamidipalli
+      email: kashyapmrc@gmail.com
