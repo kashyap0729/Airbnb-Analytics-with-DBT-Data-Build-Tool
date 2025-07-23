@@ -1,65 +1,159 @@
-# Data Pipeline for Airbnb Data Ingestion, Transformation, and Visualization
 
-This project involves the end-to-end implementation of a data pipeline to ingest, transform, and visualize Airbnb data. The pipeline integrates various tools to ensure efficient data processing, transformation, and orchestration.
+# 🏡 Airbnb Data Pipeline: Ingestion, Transformation, Visualization & MCP Integration
 
-## Components
+This project demonstrates an end-to-end modern data stack solution to ingest, transform, and visualize Airbnb data, with cutting-edge **MCP (Model Context Protocol)** integration for AI-driven insights and automation.
+
+---
+
+## 🧱 Components Overview
 
 ### 1. **Data Ingestion**
-- **Source**: Airbnb data is ingested into Amazon S3 for storage.
-- **Storage**: Amazon S3 is used as the data storage solution, providing scalability and reliability.
+
+* **Source**: Raw Airbnb listings data.
+* **Storage**: Stored in **Amazon S3** for scalable, cost-effective storage.
 
 ### 2. **Data Transformation**
-- **Tool**: Snowflake is used as the data warehouse for transforming and processing the data.
-- **dbt**: 
-  - dbt is used to model and transform the data within Snowflake, creating views, tables, incremental, and ephemeral models.
-  - **SCD Type 2**: Implemented Slowly Changing Dimension (SCD) Type 2 using dbt snapshots to track historical changes.
-  - **Data Staleness**: Managed data staleness by maintaining source data and scheduling tests to ensure data freshness.
-  - **Testing**: 
-    - Custom and generic tests are created using dbt macros for data quality validation.
-    - Used dbt's **Expectations Framework** for advanced testing, ensuring robust data accuracy.
-    - **dbt Exposure**: Documented dashboards and exposed data models for better insight and usage.
-  - **Permissions**: Managed table permissions with dbt hooks to ensure secure access to data.
+
+* **Warehouse**: **Snowflake** used to store, clean, and process data.
+* **dbt**:
+
+  * Models raw Airbnb data into views, tables, and incremental models.
+  * Implements **SCD Type 2** using dbt snapshots.
+  * Tracks **data freshness** and quality with tests and expectations.
+  * Applies **custom/generic testing** using macros.
+  * Documents models via **dbt Exposures**.
+  * Manages permissions with dbt hooks.
 
 ### 3. **Orchestration**
-- **Tool**: Dagster is used for pipeline orchestration, enabling automated workflow management.
-  - **Partitioned Incremental Models**: Partitioning and incremental models are implemented to optimize performance and backfilling.
-  - **Job Scheduling**: Automates job scheduling for efficient data processing workflows.
+
+* **Dagster** automates the pipeline with:
+
+  * Partitioned + incremental model runs.
+  * Scheduled workflows and backfills.
 
 ### 4. **Visualization**
-- **Tool**: Preset is used for data visualization and dashboarding, providing intuitive visual insights into the data.
-  
-## Tools Used
-- **Snowflake**: Data warehousing solution to store and process transformed data.
-- **dbt**: Data transformation and testing framework to model and test data.
-- **Dagster**: Workflow orchestration tool for managing pipeline execution and scheduling.
-- **Amazon S3**: Cloud storage for ingesting and storing raw data.
-- **Preset**: A visualization tool for creating interactive dashboards and data visualizations.
 
-## Project Workflow
-1. **Data Ingestion**: Raw Airbnb data is loaded into Amazon S3.
-2. **Data Transformation**: The data is processed in Snowflake using dbt to transform raw data into structured views, tables, and incremental models.
-3. **Testing**: Data is tested for accuracy and freshness using dbt's testing framework and custom dbt macros.
-4. **Orchestration**: Dagster schedules and orchestrates the entire workflow, including incremental model updates and backfilling.
-5. **Visualization**: Dashboards are created using Preset to visualize key metrics and provide insights into the Airbnb data.
+* **Preset** provides interactive dashboards and exploration for stakeholders.
 
-## Setup and Configuration
+---
 
-### Prerequisites
-- Snowflake account
-- dbt installed and configured
-- Dagster environment set up for orchestration
-- Amazon S3 bucket for data storage
-- Preset account for visualization
+## 🔌 5. MCP Integration (Model Context Protocol)
 
-### How to Run
-1. **Data Ingestion**: Configure S3 ingestion to upload Airbnb data into the designated bucket.
-2. **Data Transformation**: Set up dbt profiles and run dbt models to transform raw data into structured data.
+MCP (Model Context Protocol) enables **secure and structured communication between AI tools and your dbt project**, unlocking:
+
+* Model discovery
+* Trusted metric querying
+* Job execution (run/test/build)
+
+### 🔎 Capabilities via MCP:
+
+* `get_all_models` – list dbt models.
+* `get_model_details`, `get_model_parents` – model metadata & lineage.
+* `list_metrics`, `get_dimensions`, `query_metrics` – semantic metrics access.
+* `dbt run`, `dbt build`, `dbt test` – execute dbt CLI commands safely via LLMs or agents.
+
+### 🔧 Example Use Cases
+
+* Ask: *“What are all the fact tables and their dependencies?”* → Uses `get_model_parents`
+* Ask: *“Get the total listings in June with max, min, average”* → `query_metrics`
+* Ask: *“Run freshness tests for the staging models”* → `dbt test`
+
+### 🛠 MCP Setup
+
+```bash
+# Clone and set up dbt MCP server
+git clone https://github.com/dbt-labs/dbt-mcp
+cd dbt-mcp
+pip install -r requirements.txt
+
+# Set environment for dbt Core project
+export DBT_PROJECT_DIR=../your_dbt_project
+export DBT_CLI_PATH=$(which dbt)
+
+# Start MCP server
+mcp-server start
+```
+
+You can now use tools like **Claude Desktop, Cursor, VS Code** to chat with your dbt project via this interface.
+
+---
+
+## 🗺 Project Workflow
+
+```
+            ┌────────────┐
+            │ Airbnb Raw │
+            │    Data    │
+            └─────┬──────┘
+                  ↓
+           ┌────────────┐
+           │   Amazon   │
+           │     S3     │
+           └─────┬──────┘
+                 ↓
+        ┌────────────────┐
+        │  Snowflake DB  │
+        └─────┬────┬─────┘
+              ↓    ↓
+       ┌────────┐ ┌────────┐
+       │   dbt  │ │   MCP  │
+       └────┬───┘ └────┬───┘
+            ↓          ↓
+        ┌────────┐  ┌─────────────┐
+        │ Dagster│  │ AI/LLM Tool │
+        └────┬───┘  └────┬────────┘
+             ↓           ↓
+        ┌────────────────────┐
+        │     Preset         │
+        │  Dashboards (UI)   │
+        └────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start
+
+1. **Upload Data to S3**
+2. **Run dbt models**
+
    ```bash
    dbt run
+   ```
+3. **Schedule via Dagster**
+4. **Start MCP server**
+5. **Open Preset dashboard or connect AI tool**
 
-### Resources:
-- Learn more about dbt [in the docs](https://docs.getdbt.com/docs/introduction)
-- Learn how to integrate dbt with [Snowflake](https://www.getdbt.com/data-platforms/snowflake)
-- Step-by-step dbt setup for Snowflake in the [Quickstart Guide](https://quickstarts.snowflake.com/guide/data_teams_with_dbt_cloud/)
-- Comprehensive guide to dbt on Snowflake [here](https://medium.com/%40dipan.saha/dbt-on-snowflake-a-comprehensive-guide-a849e893a2e)
+---
 
+## 🧪 Testing & Validation
+
+* dbt tests: uniqueness, null checks, referential integrity
+* Custom macros: advanced rule enforcement
+* dbt expectations framework: behavioral testing
+* MCP-triggered tests via LLM for automated QA
+
+---
+
+## 📊 Dashboard Example
+
+<img width="1867" height="967" alt="ConnectingDBTMCP" src="https://github.com/user-attachments/assets/22a00573-c00e-448e-855a-9fae590b4215" />
+
+
+* **Key Metrics**:
+
+  * Avg Listings (June): `114.57`
+  * Max: `154`, Min: `91`
+* **Weekend Avg**: `141.3` vs Weekday Avg: `101.2`
+* **Insights**:
+
+  * Weekends show higher availability
+  * Listings fluctuate heavily mid-month
+
+---
+
+## 📚 Resources
+
+* [dbt Official Docs](https://docs.getdbt.com/)
+* [dbt + Snowflake Guide](https://www.getdbt.com/data-platforms/snowflake)
+* [MCP Intro](https://docs.getdbt.com/blog/introducing-dbt-mcp-server)
+* [MCP Spec (Anthropic)](https://en.wikipedia.org/wiki/Model_Context_Protocol)
